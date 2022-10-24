@@ -1,0 +1,60 @@
+- import quickstart.action.{RVWords}
+- val words = RVWords.get
+- val len = words.size
+
+!!! 5
+html
+  head
+    != antiCsrfMeta
+    != xitrumCss
+    != jsDefaults
+
+    meta(content="text/html; charset=utf-8" http-equiv="content-type")
+
+    title Hello
+    
+    link(rel="shortcut icon" href={publicUrl("favicon.ico")})
+    link(type="text/css" rel="stylesheet" href={publicUrl("app.css")})
+    link(type="text/css" rel="stylesheet" href={publicUrl("css/dict_view.css")})
+
+  body
+    != renderedView
+    != jsForView
+
+    h1 Dictionary #{len}
+
+    form(action="" method="post")
+      != antiCsrfInput
+      input(type="text" name="word" value="")
+      input(type="button" value="Добавить" onclick="formAdd()")
+      input(type="button" value="Удалить" onclick="formDel()")
+    
+    div.container
+      - if (len > 0) {
+        ul(class="dict")
+          h3=words(0)._2.capitalize.head
+          li
+            span(class="word")=words.head._2.capitalize
+          - for(i <- 1 to len - 1) {
+            - if (words(i - 1)._2.head != words(i)._2.head)
+              h3=words(i)._2.capitalize.head
+            li
+              span(class="word")=words(i)._2.capitalize
+          - }
+        - }
+
+    :javascript
+      const form = document.querySelector('form');
+
+      function formAdd() {
+        form.action = 'add'
+        form.submit();
+      }
+
+      function formDel() {
+        form.action = 'del'
+        form.submit();
+      }
+      document.addEventListener('keydown', function(event) {
+        if (event.code == 'Enter') formAdd();
+      });
